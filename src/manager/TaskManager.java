@@ -1,3 +1,10 @@
+package manager;
+
+import model.Epic;
+import model.Subtask;
+import model.Task;
+import util.Status;
+
 import java.util.*;
 
 public class TaskManager {

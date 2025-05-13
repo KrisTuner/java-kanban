@@ -1,9 +1,12 @@
+package model;
+
+import util.Status;
 import java.util.Objects;
 
 public class Task {
+    protected int id;
     protected String name;
     protected String description;
-    protected int id;
     protected Status status;
 
     public Task(String name, String description) {
@@ -32,7 +35,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{" +
+        return "model.Task{" +
                 "id = " + id +
                 " name = " + name +
         " description = " + description +

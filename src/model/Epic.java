@@ -1,5 +1,8 @@
+package model;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Epic extends Task {
     private final List<Integer> subtaskIds = new ArrayList<>();
@@ -17,13 +20,15 @@ public class Epic extends Task {
     }
 
     @Override
-    public String toString() {
-        return "Epic{" +
-                "id = " + id +
-                " name = " + name +
-        " description = " + description +
-        " status = " + status +
-                " subtaskIds = " + subtaskIds +
-                '}';
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Epic epic)) return false;
+        if (!super.equals(o)) return false;
+        return subtaskIds.equals(epic.subtaskIds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), subtaskIds);
     }
 }
