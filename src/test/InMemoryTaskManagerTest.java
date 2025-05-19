@@ -67,7 +67,6 @@ class InMemoryTaskManagerTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> manager.createSubtask(subtask),
-                "Подзадача не должна быть своим же эпиком"
-        );
+                "Подзадача не должна быть своим же эпиком");
     }
 }
