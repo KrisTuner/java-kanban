@@ -1,3 +1,4 @@
+import manager.Managers;
 import manager.TaskManager;
 import model.Epic;
 import model.Subtask;
@@ -5,9 +6,8 @@ import model.Task;
 import util.Status;
 
 public class Main {
-
     public static void main(String[] args) {
-        TaskManager manager = new TaskManager();
+        TaskManager manager = Managers.getDefault();
 
         Task task1 = new Task("Переезд", "Собрать вещи");
         Task task2 = new Task("Купить продукты", "Купить хлеб, молоко и яйца");
@@ -52,6 +52,13 @@ public class Main {
         System.out.println("После обновления статусов:");
         System.out.println("Все эпики:");
         System.out.println(manager.getAllEpics());
+
+        manager.getTask(task1.getId());
+        manager.getSubtask(subtask1.getId());
+        manager.getEpic(epic1.getId());
+
+        System.out.println("История просмотров:");
+        System.out.println(manager.getHistory());
 
         manager.deleteTaskById(task2.getId());
         manager.deleteEpicById(epic2.getId());

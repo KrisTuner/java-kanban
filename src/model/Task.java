@@ -19,12 +19,12 @@ public class Task {
     public void setId(int id) { this.id = id; }
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
+    public String getName() { return name; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
+        if (!(o instanceof Task task)) return false;
         return id == task.id;
     }
 
@@ -35,11 +35,15 @@ public class Task {
 
     @Override
     public String toString() {
-        return "model.Task{" +
-                "id = " + id +
-                " name = " + name +
-        " description = " + description +
-        " status = " + status +
+        return "Task{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", status=" + status +
                 '}';
+    }
+
+    public void setName(String updatedName) {
+        this.name = updatedName;
     }
 }
