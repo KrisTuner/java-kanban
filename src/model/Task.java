@@ -19,7 +19,6 @@ public class Task {
     public void setId(int id) { this.id = id; }
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
-    public String getName() { return name; }
 
     @Override
     public boolean equals(Object o) {
@@ -41,9 +40,5 @@ public class Task {
                 ", description='" + description + '\'' +
                 ", status=" + status +
                 '}';
-    }
-
-    public void setName(String updatedName) {
-        this.name = updatedName;
     }
 }

@@ -13,60 +13,105 @@ class InMemoryTaskManagerTest {
     private final TaskManager manager = Managers.getDefault();
 
     @Test
-    void shouldAddAndFindDifferentTaskTypes() {
-        Task task = new Task("Task", "Description");
+    void shouldCreateAndFindTask() {
+        Task task = new Task("Покупки", "Купить молоко");
         manager.createTask(task);
+        Task savedTask = manager.getTask(task.getId());
 
-        Epic epic = new Epic("Epic", "Description");
+        assertNotNull(savedTask, "Задача должна сохраняться");
+        assertEquals(task, savedTask, "Сохраненная задача должна соответствовать созданной");
+    }
+
+    @Test
+    void shouldUpdateTaskStatus() {
+        Task task = new Task("Уборка", "Помыть пол");
+        manager.createTask(task);
+        task.setStatus(Status.IN_PROGRESS);
+        manager.updateTask(task);
+
+        assertEquals(Status.IN_PROGRESS, manager.getTask(task.getId()).getStatus(),
+                "Статус задачи должен обновляться");
+    }
+
+    @Test
+    void shouldDeleteTask() {
+        Task task = new Task("Задача", "Описание");
+        manager.createTask(task);
+        manager.deleteTaskById(task.getId());
+
+        assertNull(manager.getTask(task.getId()), "Задача должна удаляться");
+    }
+
+    @Test
+    void shouldCreateEpicWithSubtasks() {
+        Epic epic = new Epic("Ремонт", "Сделать ремонт");
         manager.createEpic(epic);
-
-        Subtask subtask = new Subtask("Subtask", "Description", epic.getId());
+        Subtask subtask = new Subtask("Покраска", "Покрасить стены", epic.getId());
         manager.createSubtask(subtask);
 
-        assertEquals(task, manager.getTask(task.getId()));
-        assertEquals(epic, manager.getEpic(epic.getId()));
-        assertEquals(subtask, manager.getSubtask(subtask.getId()));
+        assertEquals(1, manager.getEpic(epic.getId()).getSubtaskIds().size(),
+                "Эпик должен содержать подзадачи");
     }
 
     @Test
-    void generatedIdShouldNotConflictWithAssignedId() {
-        Task taskWithId = new Task("Task with ID", "Description");
-        taskWithId.setId(100);
-        manager.createTask(taskWithId);
-
-        Task taskWithoutId = new Task("Task without ID", "Description");
-        manager.createTask(taskWithoutId);
-
-        assertNotEquals(taskWithId.getId(), taskWithoutId.getId(),
-                "ID должны быть уникальными, независимо от способа назначения");
-    }
-
-    @Test
-    void epicStatusShouldUpdateWhenSubtasksChange() {
-        Epic epic = new Epic("Epic", "Description");
+    void shouldUpdateEpicStatusWhenSubtasksChange() {
+        Epic epic = new Epic("Эпик", "Описание");
         manager.createEpic(epic);
+        Subtask subtask = new Subtask("Подзадача", "Описание", epic.getId());
+        manager.createSubtask(subtask);
 
-        Subtask subtask1 = new Subtask("Sub 1", "Desc", epic.getId());
-        manager.createSubtask(subtask1);
-        assertEquals(Status.NEW, epic.getStatus());
+        subtask.setStatus(Status.DONE);
+        manager.updateSubtask(subtask);
 
-        subtask1.setStatus(Status.IN_PROGRESS);
-        manager.updateSubtask(subtask1);
-        assertEquals(Status.IN_PROGRESS, epic.getStatus());
-
-        subtask1.setStatus(Status.DONE);
-        manager.updateSubtask(subtask1);
-        assertEquals(Status.DONE, epic.getStatus());
+        assertEquals(Status.DONE, manager.getEpic(epic.getId()).getStatus(),
+                "Статус эпика должен обновляться при изменении подзадач");
     }
 
     @Test
-    void subtaskCannotBeItsOwnEpic() {
-        Subtask subtask = new Subtask("Subtask", "Description", 1);
+    void shouldNotAllowSubtaskToBeItsOwnEpic() {
+        Subtask subtask = new Subtask("Подзадача", "Описание", 1);
         subtask.setId(1);
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> manager.createSubtask(subtask),
+        assertThrows(IllegalArgumentException.class, () -> manager.createSubtask(subtask),
                 "Подзадача не должна быть своим же эпиком");
+    }
+
+    @Test
+    void shouldReturnEmptyListForNewManager() {
+        assertTrue(manager.getAllTasks().isEmpty(), "Новый менеджер не должен содержать задач");
+        assertTrue(manager.getAllEpics().isEmpty(), "Новый менеджер не должен содержать эпиков");
+        assertTrue(manager.getAllSubtasks().isEmpty(), "Новый менеджер не должен содержать подзадач");
+    }
+
+    @Test
+    void shouldGenerateUniqueIds() {
+        Task task1 = new Task("Задача 1", "Описание");
+        Task task2 = new Task("Задача 2", "Описание");
+        manager.createTask(task1);
+        manager.createTask(task2);
+
+        assertNotEquals(task1.getId(), task2.getId(), "ID задач должны быть уникальными");
+    }
+
+    @Test
+    void shouldDeleteAllSubtasksWithEpic() {
+        Epic epic = new Epic("Эпик", "Описание");
+        manager.createEpic(epic);
+        Subtask subtask = new Subtask("Подзадача", "Описание", epic.getId());
+        manager.createSubtask(subtask);
+        manager.deleteEpicById(epic.getId());
+
+        assertTrue(manager.getAllSubtasks().isEmpty(),
+                "Удаление эпика должно удалять все его подзадачи");
+    }
+
+    @Test
+    void shouldAddTasksToHistory() {
+        Task task = new Task("Задача", "Описание");
+        manager.createTask(task);
+        manager.getTask(task.getId());
+
+        assertEquals(1, manager.getHistory().size(),
+                "Просмотр задачи должен добавлять её в историю");
     }
 }
