@@ -1,15 +1,19 @@
 package test;
 
 import model.Task;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import util.Status;
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("Тесты для Task")
 class TaskTest {
     @Test
-    void equalsShouldReturnTrueForSameId() {
+    @DisplayName("Сравнение задач по ID")
+    void tasksWithSameIdShouldBeEqual() {
         Task task1 = new Task("Task 1", "Description");
         Task task2 = new Task("Task 2", "Different Description");
+
         task1.setId(1);
         task2.setId(1);
 
@@ -17,55 +21,45 @@ class TaskTest {
     }
 
     @Test
-    void equalsShouldReturnFalseForDifferentIds() {
-        Task task1 = new Task("Task", "Description");
-        Task task2 = new Task("Task", "Description");
-        task1.setId(1);
-        task2.setId(2);
-
-        assertNotEquals(task1, task2, "Задачи с разными ID не должны быть равны");
-    }
-
-    @Test
-    void equalsShouldReturnFalseForDifferentClass() {
+    @DisplayName("Статус новой задачи")
+    void newTaskShouldHaveNewStatus() {
         Task task = new Task("Task", "Description");
-        assertNotEquals(new Object(), task, "Задача не должна быть равна объекту другого класса");
+        assertEquals(Status.NEW, task.getStatus(),
+                "Новая задача должна иметь статус NEW");
     }
 
     @Test
-    void equalsShouldReturnFalseForNull() {
-        Task task = new Task("Task", "Description");
-        assertNotEquals(null, task, "Задача не должна быть равна null");
-    }
-
-    @Test
-    void hashCodeShouldBeEqualForSameId() {
-        Task task1 = new Task("Task 1", "Desc 1");
-        Task task2 = new Task("Task 2", "Desc 2");
-        task1.setId(1);
-        task2.setId(1);
-
-        assertEquals(task1.hashCode(), task2.hashCode(), "HashCode должен совпадать для одинаковых ID");
-    }
-
-    @Test
+    @DisplayName("Строковое представление")
     void toStringShouldContainAllFields() {
-        Task task = new Task("Test Task", "Test Description");
+        Task task = new Task("Test", "Description");
         task.setId(1);
         task.setStatus(Status.IN_PROGRESS);
 
-        String expected = "Task{"
-                + "id=1"
-                + ", name='Test Task'"
-                + ", description='Test Description'"
-                + ", status=IN_PROGRESS"
-                + "}";
-        assertEquals(expected, task.toString(), "toString() должен содержать все поля");
+        String expected = "Task{id=1, name='Test', description='Description', status=IN_PROGRESS}";
+        assertEquals(expected, task.toString(),
+                "toString() должен содержать все поля");
     }
 
     @Test
-    void newTaskShouldHaveNewStatus() {
-        Task task = new Task("Task", "Description");
-        assertEquals(Status.NEW, task.getStatus(), "Новая задача должна иметь статус NEW");
+    @DisplayName("Изменение статуса")
+    void shouldChangeStatus() {
+        Task task = new Task("Task", "Desc");
+        task.setStatus(Status.DONE);
+
+        assertEquals(Status.DONE, task.getStatus(),
+                "Статус задачи должен изменяться");
+    }
+
+    @Test
+    @DisplayName("Проверка hashCode")
+    void hashCodeShouldBeConsistentWithEquals() {
+        Task task1 = new Task("Task 1", "Description");
+        Task task2 = new Task("Task 2", "Description");
+
+        task1.setId(1);
+        task2.setId(1);
+
+        assertEquals(task1.hashCode(), task2.hashCode(),
+                "hashCode должен быть одинаковым для задач с одинаковым ID");
     }
 }

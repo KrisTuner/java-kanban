@@ -5,38 +5,47 @@ import manager.Managers;
 import model.Epic;
 import model.Subtask;
 import model.Task;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
+@DisplayName("Тесты InMemoryHistoryManager")
 class InMemoryHistoryManagerTest {
-    private final HistoryManager history = Managers.getDefaultHistory();
+    private HistoryManager history;
+
+    @BeforeEach
+    void setUp() {
+        history = Managers.getDefaultHistory();
+    }
 
     @Test
+    @DisplayName("Добавление задачи в историю")
     void shouldAddTasksToHistory() {
         Task task = new Task("Task", "Description");
         task.setId(1);
         history.add(task);
 
-        assertFalse(history.getHistory().isEmpty(), "История не должна быть пустой");
-        assertEquals(1, history.getHistory().size(), "История должна содержать 1 задачу");
+        assertEquals(1, history.getHistory().size(),
+                "История должна содержать 1 задачу");
     }
 
     @Test
+    @DisplayName("Отсутствие дубликатов в истории")
     void shouldNotContainDuplicates() {
         Task task = new Task("Task", "Description");
         task.setId(1);
 
         history.add(task);
-        history.add(task); // Добавляем дубликат
+        history.add(task);
 
         assertEquals(1, history.getHistory().size(),
-                "История должна содержать только последнюю версию задачи");
+                "История должна содержать только уникальные задачи");
     }
 
     @Test
+    @DisplayName("Удаление задачи из истории")
     void shouldRemoveTaskFromHistory() {
         Task task1 = new Task("Task 1", "Desc");
         Task task2 = new Task("Task 2", "Desc");
@@ -47,13 +56,12 @@ class InMemoryHistoryManagerTest {
         history.add(task2);
         history.remove(task1.getId());
 
-        assertEquals(1, history.getHistory().size(),
-                "После удаления в истории должна остаться 1 задача");
-        assertEquals(task2, history.getHistory().getFirst(),
-                "Оставшаяся задача должна быть task2");
+        assertEquals(List.of(task2), history.getHistory(),
+                "История должна содержать только оставшиеся задачи");
     }
 
     @Test
+    @DisplayName("Порядок задач в истории")
     void shouldMaintainInsertionOrder() {
         Task task1 = new Task("Task 1", "Desc");
         Task task2 = new Task("Task 2", "Desc");
@@ -63,12 +71,12 @@ class InMemoryHistoryManagerTest {
         history.add(task1);
         history.add(task2);
 
-        List<Task> expectedOrder = List.of(task1, task2);
-        assertEquals(expectedOrder, history.getHistory(),
-                "Порядок задач в истории должен соответствовать порядку добавления");
+        assertEquals(List.of(task1, task2), history.getHistory(),
+                "Порядок задач должен соответствовать порядку добавления");
     }
 
     @Test
+    @DisplayName("Работа с разными типами задач")
     void shouldHandleMixedTaskTypes() {
         Task task = new Task("Task", "Desc");
         Epic epic = new Epic("Epic", "Desc");
@@ -86,12 +94,14 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
+    @DisplayName("Пустая история")
     void shouldReturnEmptyListForEmptyHistory() {
         assertTrue(history.getHistory().isEmpty(),
                 "Для пустой истории должен возвращаться пустой список");
     }
 
     @Test
+    @DisplayName("Удаление из середины истории")
     void shouldRemoveFromMiddleOfHistory() {
         Task task1 = new Task("Task 1", "Desc");
         Task task2 = new Task("Task 2", "Desc");
@@ -103,10 +113,9 @@ class InMemoryHistoryManagerTest {
         history.add(task1);
         history.add(task2);
         history.add(task3);
-        history.remove(task2.getId()); // Удаляем из середины
+        history.remove(task2.getId());
 
-        List<Task> expected = List.of(task1, task3);
-        assertEquals(expected, history.getHistory(),
-                "После удаления из середины должны остаться task1 и task3");
+        assertEquals(List.of(task1, task3), history.getHistory(),
+                "После удаления должны остаться задачи по краям");
     }
 }

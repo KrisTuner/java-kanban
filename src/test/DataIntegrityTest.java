@@ -5,6 +5,7 @@ import manager.TaskManager;
 import model.Epic;
 import model.Subtask;
 import model.Task;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -12,6 +13,7 @@ class DataIntegrityTest {
     private final TaskManager manager = Managers.getDefault();
 
     @Test
+    @DisplayName("Удаление ID подзадачи из эпика при удалении подзадачи")
     void shouldRemoveSubtaskIdsFromEpicWhenSubtaskDeleted() {
         Epic epic = new Epic("Ремонт", "Сделать ремонт в комнате");
         manager.createEpic(epic);
@@ -23,6 +25,7 @@ class DataIntegrityTest {
     }
 
     @Test
+    @DisplayName("Удаление всех подзадач при удалении эпика")
     void shouldRemoveSubtasksWhenEpicDeleted() {
         Epic epic = new Epic("Подготовка к отпуску", "Собрать чемодан");
         manager.createEpic(epic);
@@ -34,6 +37,7 @@ class DataIntegrityTest {
     }
 
     @Test
+    @DisplayName("Игнорирование ручного изменения ID задачи")
     void shouldIgnoreManualIdChanges() {
         Task task = new Task("Уборка", "Помыть пол");
         manager.createTask(task);
@@ -44,6 +48,7 @@ class DataIntegrityTest {
     }
 
     @Test
+    @DisplayName("Удаление задачи из истории при её удалении")
     void shouldRemoveTaskFromHistoryWhenDeleted() {
         Task task = new Task("Покупки", "Молоко, хлеб");
         manager.createTask(task);

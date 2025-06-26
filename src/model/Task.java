@@ -23,6 +23,14 @@ public class Task {
         this.id = id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public Status getStatus() {
         return status;
     }
