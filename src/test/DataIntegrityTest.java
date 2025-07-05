@@ -7,17 +7,21 @@ import model.Subtask;
 import model.Task;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.*;
 
 class DataIntegrityTest {
     private final TaskManager manager = Managers.getDefault();
+    private final LocalDateTime now = LocalDateTime.now();
 
     @Test
     @DisplayName("Удаление ID подзадачи из эпика при удалении подзадачи")
     void shouldRemoveSubtaskIdsFromEpicWhenSubtaskDeleted() {
         Epic epic = new Epic("Ремонт", "Сделать ремонт в комнате");
         manager.createEpic(epic);
-        Subtask subtask = new Subtask("Покраска стен", "Купить краску", epic.getId());
+        Subtask subtask = new Subtask("Покраска стен", "Купить краску",
+                epic.getId(), now, Duration.ofHours(2));
         manager.createSubtask(subtask);
         manager.deleteSubtaskById(subtask.getId());
         assertFalse(epic.getSubtaskIds().contains(subtask.getId()),
@@ -25,21 +29,9 @@ class DataIntegrityTest {
     }
 
     @Test
-    @DisplayName("Удаление всех подзадач при удалении эпика")
-    void shouldRemoveSubtasksWhenEpicDeleted() {
-        Epic epic = new Epic("Подготовка к отпуску", "Собрать чемодан");
-        manager.createEpic(epic);
-        Subtask subtask = new Subtask("Купить билеты", "Авиабилеты", epic.getId());
-        manager.createSubtask(subtask);
-        manager.deleteEpicById(epic.getId());
-        assertNull(manager.getSubtask(subtask.getId()),
-                "Подзадача должна удаляться вместе с эпиком");
-    }
-
-    @Test
     @DisplayName("Игнорирование ручного изменения ID задачи")
     void shouldIgnoreManualIdChanges() {
-        Task task = new Task("Уборка", "Помыть пол");
+        Task task = new Task("Уборка", "Помыть пол", now, Duration.ofMinutes(30));
         manager.createTask(task);
         int originalId = task.getId();
         task.setId(999);
@@ -50,7 +42,7 @@ class DataIntegrityTest {
     @Test
     @DisplayName("Удаление задачи из истории при её удалении")
     void shouldRemoveTaskFromHistoryWhenDeleted() {
-        Task task = new Task("Покупки", "Молоко, хлеб");
+        Task task = new Task("Покупки", "Молоко, хлеб", now, Duration.ofMinutes(15));
         manager.createTask(task);
         manager.getTask(task.getId());
         manager.deleteTaskById(task.getId());

@@ -1,5 +1,7 @@
 package model;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -8,7 +10,7 @@ public class Epic extends Task {
     private final List<Integer> subtaskIds = new ArrayList<>();
 
     public Epic(String name, String description) {
-        super(name, description);
+        super(name, description, null, null);
     }
 
     public List<Integer> getSubtaskIds() {
@@ -20,6 +22,21 @@ public class Epic extends Task {
             throw new IllegalArgumentException("Эпик не может быть своей же подзадачей");
         }
         subtaskIds.add(subtaskId);
+    }
+
+    @Override
+    public LocalDateTime getStartTime() {
+        return null;
+    }
+
+    @Override
+    public Duration getDuration() {
+        return Duration.ZERO;
+    }
+
+    @Override
+    public LocalDateTime getEndTime() {
+        return null;
     }
 
     @Override
