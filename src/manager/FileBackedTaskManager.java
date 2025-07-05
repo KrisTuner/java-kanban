@@ -1,4 +1,5 @@
 package manager;
+
 import model.Epic;
 import model.Subtask;
 import model.Task;
@@ -8,11 +9,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     private final File file;
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     public FileBackedTaskManager(File file) {
         this.file = file;
@@ -68,7 +73,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public void save() {
         try {
-            String header = "id,type,name,status,description,epic\n";
+            String header = "id,type,name,status,description,startTime,duration,epic\n";
             Files.writeString(file.toPath(), header);
 
             List<Task> allTasks = new ArrayList<>();
@@ -86,25 +91,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private String toString(Task task) {
-        TaskType type;
-        String epicId = "";
-
-        if (task instanceof Epic) {
-            type = TaskType.EPIC;
-        } else if (task instanceof Subtask) {
-            type = TaskType.SUBTASK;
-            epicId = String.valueOf(((Subtask) task).getEpicId());
-        } else {
-            type = TaskType.TASK;
-        }
-
-        return String.join(",",
+        String[] fields = {
                 String.valueOf(task.getId()),
-                type.name(),
+                task instanceof Epic ? TaskType.EPIC.name() :
+                        task instanceof Subtask ? TaskType.SUBTASK.name() : TaskType.TASK.name(),
                 task.getName(),
                 task.getStatus().name(),
                 task.getDescription(),
-                epicId);
+                task.getStartTime() != null ? task.getStartTime().format(DATE_TIME_FORMATTER) : "",
+                task.getDuration() != null ? String.valueOf(task.getDuration().toMinutes()) : "",
+                task instanceof Subtask ? String.valueOf(((Subtask) task).getEpicId()) : ""
+        };
+        return String.join(",", fields);
     }
 
     public static FileBackedTaskManager loadFromFile(File file) {
@@ -140,10 +138,14 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = parts[2];
         Status status = Status.valueOf(parts[3]);
         String description = parts[4];
+        LocalDateTime startTime = parts[5].isEmpty() ? null :
+                LocalDateTime.parse(parts[5], DATE_TIME_FORMATTER);
+        Duration duration = parts[6].isEmpty() ? null :
+                Duration.ofMinutes(Long.parseLong(parts[6]));
 
         switch (type) {
             case TASK:
-                Task task = new Task(name, description);
+                Task task = new Task(name, description, startTime, duration);
                 task.setId(id);
                 task.setStatus(status);
                 return task;
@@ -153,8 +155,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 epic.setStatus(status);
                 return epic;
             case SUBTASK:
-                int epicId = Integer.parseInt(parts[5]);
-                Subtask subtask = new Subtask(name, description, epicId);
+                int epicId = Integer.parseInt(parts[7]);
+                Subtask subtask = new Subtask(name, description, epicId, startTime, duration);
                 subtask.setId(id);
                 subtask.setStatus(status);
                 return subtask;
