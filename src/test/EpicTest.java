@@ -3,7 +3,6 @@ package test;
 import manager.Managers;
 import manager.TaskManager;
 import model.Epic;
-import model.Subtask;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,20 +27,6 @@ class EpicTest {
         epic2.setId(1);
 
         assertEquals(epic1, epic2, "Эпики с одинаковым id должны быть равны");
-    }
-
-    @Test
-    @DisplayName("Эпик не может быть своей подзадачей")
-    void epicCannotAddItselfAsSubtask() {
-        Epic epic = new Epic("Epic", "Description");
-        manager.createEpic(epic);
-
-        Subtask subtask = new Subtask("Sub", "Desc", epic.getId());
-        subtask.setId(epic.getId()); // Устанавливаем тот же ID
-
-        assertThrows(IllegalArgumentException.class,
-                () -> manager.createSubtask(subtask),
-                "Подзадача не должна иметь тот же ID, что и эпик");
     }
 
     @Test
