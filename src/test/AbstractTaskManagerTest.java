@@ -78,4 +78,17 @@ public abstract class AbstractTaskManagerTest<T extends TaskManager> {
         assertThrows(RuntimeException.class, () -> manager.createTask(task2),
                 "Должна быть ошибка пересечения");
     }
+
+    @Test
+    @DisplayName("Обновление названия и описания эпика")
+    void shouldUpdateEpicNameAndDescription() {
+        Epic epic = new Epic("Эпик", "Описание");
+        manager.createEpic(epic);
+        Epic updatedEpic = new Epic("Новый эпик", "Новое описание");
+        updatedEpic.setId(epic.getId());
+        manager.updateEpic(updatedEpic);
+
+        assertEquals("Новый эпик", manager.getEpic(epic.getId()).getName());
+        assertEquals("Новое описание", manager.getEpic(epic.getId()).getDescription());
+    }
 }

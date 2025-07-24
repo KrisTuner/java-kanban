@@ -51,4 +51,14 @@ public class Epic extends Task {
     public int hashCode() {
         return Objects.hash(super.hashCode(), subtaskIds);
     }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

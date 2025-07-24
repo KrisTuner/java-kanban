@@ -91,6 +91,14 @@ public class Task {
         return Objects.hash(id);
     }
 
+    protected void setName(String name) {
+        this.name = name;
+    }
+
+    protected void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public String toString() {
         return "Task{" +
