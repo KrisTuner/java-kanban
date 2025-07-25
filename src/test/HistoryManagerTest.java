@@ -77,4 +77,12 @@ class HistoryManagerTest {
 
         assertEquals(List.of(task1, task2), historyManager.getHistory(), "Задача в конце должна удалиться");
     }
+
+    @Test
+    @DisplayName("История должна быть пустой после удаления единственной задачи")
+    void shouldBeEmptyAfterSingleTaskRemoval() {
+        historyManager.add(task1);
+        historyManager.remove(task1.getId());
+        assertTrue(historyManager.getHistory().isEmpty());
+    }
 }

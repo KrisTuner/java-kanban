@@ -98,4 +98,16 @@ class InMemoryTaskManagerTest extends AbstractTaskManagerTest<TaskManager> {
         assertThrows(RuntimeException.class, () -> manager.createTask(task2),
                 "Должна быть ошибка при пересечении времени задач");
     }
+
+    @Test
+    @DisplayName("Удаление всех подзадач эпика → статус NEW")
+    void shouldResetEpicStatusWhenAllSubtasksDeleted() {
+        Epic epic = new Epic("Эпик", "Описание");
+        manager.createEpic(epic);
+        Subtask subtask = new Subtask("Подзадача", "Описание", epic.getId(), now, Duration.ofMinutes(30));
+        manager.createSubtask(subtask);
+        manager.deleteSubtaskById(subtask.getId());
+
+        assertEquals(Status.NEW, epic.getStatus());
+    }
 }

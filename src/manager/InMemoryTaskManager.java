@@ -279,4 +279,17 @@ public class InMemoryTaskManager implements TaskManager {
                 .filter(task -> task.getStartTime() != null && task.getDuration() != null)
                 .anyMatch(task -> task.isTimeOverlapping(newTask));
     }
+
+    @Override
+    public void updateEpic(Epic epic) {
+        Objects.requireNonNull(epic, "Эпик не может быть null");
+        if (!epics.containsKey(epic.getId())) {
+            throw new IllegalArgumentException("Эпик с id=" + epic.getId() + " не существует");
+        }
+
+        Epic savedEpic = epics.get(epic.getId());
+        savedEpic.setName(epic.getName());
+        savedEpic.setDescription(epic.getDescription());
+        updateEpicStatus(savedEpic);
+    }
 }
